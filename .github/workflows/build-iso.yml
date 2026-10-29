@@ -41,9 +41,9 @@ jobs:
           cat >> /tmp/hyprl-profile/airootfs/root/customize_airootfs.sh <<'HYPRL_CUSTOMIZE'
 
           # HYPRL custom live desktop
-          useradd --create-home --groups wheel,audio,video,storage --shell /bin/bash liveuser || true
+          useradd --create-home --groups wheel,audio,video --shell /bin/bash liveuser || true
           echo 'liveuser:hyprl' | chpasswd
-          echo 'root:hyprl' | chpasswd
+          passwd -l root || true
           install -d -m 0755 /etc/sudoers.d
           echo '%wheel ALL=(ALL:ALL) NOPASSWD: ALL' > /etc/sudoers.d/00-hyprl-wheel
           chmod 0440 /etc/sudoers.d/00-hyprl-wheel
