@@ -22,3 +22,7 @@ network-manager-applet
 qt5-wayland
 qt6-wayland
 ttf-dejavu
+sddm
+firefox
+xorg-xwayland
+mesa
