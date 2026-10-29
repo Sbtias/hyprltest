@@ -28,7 +28,8 @@ jobs:
       - name: Prepare official Archiso releng profile
         run: |
           cp -a /usr/share/archiso/configs/releng /tmp/hyprl-profile
-          cp iso/packages.x86_64 /tmp/hyprl-profile/packages.x86_64
+          cat iso/packages.x86_64 >> /tmp/hyprl-profile/packages.x86_64
+          sort -u /tmp/hyprl-profile/packages.x86_64 -o /tmp/hyprl-profile/packages.x86_64
           mkdir -p /tmp/hyprl-profile/airootfs/etc/skel/.config
           cp -a config/hypr /tmp/hyprl-profile/airootfs/etc/skel/.config/
           cp -a config/waybar /tmp/hyprl-profile/airootfs/etc/skel/.config/
