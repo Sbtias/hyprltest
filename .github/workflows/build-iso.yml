@@ -1,0 +1,68 @@
+name: Build HYPRL ISO
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "iso/**"
+      - "config/**"
+      - ".github/workflows/build-iso.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  build-iso:
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+    steps:
+      - name: Install build dependencies
+        run: |
+          pacman -Syu --noconfirm
+          pacman -S --noconfirm --needed archiso git sudo
+
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Prepare official Archiso releng profile
+        run: |
+          cp -a /usr/share/archiso/configs/releng /tmp/hyprl-profile
+          cp iso/packages.x86_64 /tmp/hyprl-profile/packages.x86_64
+          mkdir -p /tmp/hyprl-profile/airootfs/etc/skel/.config
+          cp -a config/hypr /tmp/hyprl-profile/airootfs/etc/skel/.config/
+          cp -a config/waybar /tmp/hyprl-profile/airootfs/etc/skel/.config/
+          cp -a config/kitty /tmp/hyprl-profile/airootfs/etc/skel/.config/
+          cp -a config/wofi /tmp/hyprl-profile/airootfs/etc/skel/.config/
+          cp -a config/mako /tmp/hyprl-profile/airootfs/etc/skel/.config/
+          mkdir -p /tmp/hyprl-profile/airootfs/etc/sddm.conf.d
+          cp iso/sddm-autologin.conf /tmp/hyprl-profile/airootfs/etc/sddm.conf.d/hyprl-autologin.conf
+          cat >> /tmp/hyprl-profile/airootfs/root/customize_airootfs.sh <<'HYPRL_CUSTOMIZE'
+
+          # HYPRL custom live desktop
+          useradd --create-home --groups wheel,audio,video,storage --shell /bin/bash liveuser || true
+          echo 'liveuser:hyprl' | chpasswd
+          echo 'root:hyprl' | chpasswd
+          install -d -m 0755 /etc/sudoers.d
+          echo '%wheel ALL=(ALL:ALL) NOPASSWD: ALL' > /etc/sudoers.d/00-hyprl-wheel
+          chmod 0440 /etc/sudoers.d/00-hyprl-wheel
+          install -d -o liveuser -g liveuser /home/liveuser/.config
+          cp -a /etc/skel/.config/. /home/liveuser/.config/
+          chown -R liveuser:liveuser /home/liveuser/.config
+          systemctl enable NetworkManager
+          systemctl enable sddm
+          HYPRL_CUSTOMIZE
+
+      - name: Build ISO
+        run: |
+          mkdir -p /workspace/out /workspace/work
+          mkarchiso -v -w /workspace/work -o /workspace/out /tmp/hyprl-profile
+          sha256sum /workspace/out/*.iso | tee /workspace/out/SHA256SUMS
+
+      - name: Upload HYPRL ISO artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hyprl-iso
+          path: /workspace/out/*
+          if-no-files-found: error
+          retention-days: 14
