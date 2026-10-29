@@ -2,11 +2,16 @@
 
 HYPRL is an early Arch Linux-based desktop project built around Hyprland. This repository currently provides a desktop configuration and setup script, not a finished bootable operating system ISO.
 
+## Interactive HTML preview
+
+Open [preview.html](preview.html) to view the visual desktop prototype. To try it locally, download the file and open it in a web browser. The launcher buttons and clock work as a browser demo; they do not launch real Linux apps.
+
 ## Included
 - Hyprland Wayland compositor configuration
 - Waybar panel, Kitty terminal, Wofi launcher, and Mako notifications
 - Setup script for existing Arch Linux systems
 - Starter package list for future ISO work
+- Interactive HTML desktop mockup
 
 ## Setup
 On an existing Arch Linux or Arch-based installation, clone the repo and run:
