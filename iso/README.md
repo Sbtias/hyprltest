@@ -1,12 +1,25 @@
-# HYPRL ISO roadmap
+# HYPRL ISO
 
-This is a starter, not a finished bootable ISO. On an Arch Linux build machine, install Archiso and copy the official releng profile:
+HYPRL is an early Arch Linux-based live desktop built around Hyprland. The repository now includes an automated Archiso build workflow. A successful build has to finish in GitHub Actions before an ISO artifact is available; adding a workflow does not itself prove that the image boots correctly.
 
-    sudo pacman -S --needed archiso
-    cp -r /usr/share/archiso/configs/releng ~/hyprl-iso
+## Build an ISO with GitHub Actions
 
-Add packages from packages.x86_64 to the profile package list, copy the HYPRL configuration into the live environment using Archiso profile customization, then build:
+1. Open the repository's **Actions** tab.
+2. Select **Build HYPRL ISO**.
+3. Choose **Run workflow** and run it from the `main` branch, or push a change to `iso/`, `config/`, or the workflow.
+4. Wait for the workflow to finish successfully.
+5. Open the completed run and download the **hyprl-iso** artifact. It contains the ISO and its SHA256 checksum.
 
-    sudo mkarchiso -v -w /tmp/hyprl-work -o ~/hyprl-out ~/hyprl-iso
+The workflow starts from the official Archiso `releng` profile, adds HYPRL's package list and desktop configs, then builds the image. Builds can fail if Arch packages or upstream Archiso change; inspect the Actions log rather than assuming the ISO was produced.
 
-Test the resulting image in a virtual machine before using it on hardware. An installer, hardware testing, and ISO validation remain future work.
+## Live session
+
+The current configuration attempts to start SDDM and automatically log in to the `liveuser` account. The live account password is `hyprl`. This is a temporary demo credential, not a secure installed-user password. The root account is locked by the customization script. Do not expose this live image as a production environment.
+
+## Test before installing
+
+Boot the ISO in a virtual machine first (for example, QEMU or VirtualBox). Check that the image boots, the graphical session starts, keyboard shortcuts work, and networking is available. This project does **not** yet provide a disk installer, hardware compatibility certification, or a verified release ISO. Do not repartition or install to your main computer based on an untested build.
+
+## Local build (Arch Linux)
+
+Install Archiso, then use the same official profile and overlay approach as the workflow. The workflow file is the canonical current build recipe.
